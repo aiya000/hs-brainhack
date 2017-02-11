@@ -107,7 +107,7 @@ setCurrentCell val = do
 
 -- Execute a specified operation
 executeOperation :: (Eq a, BrainfuckOperation a) => a -> BrainState ()
-executeOperation x | x == forward = do
+executeOperation x | x == forwardOp = do
   logging
   machine <- get
   memP    <- gets vmMemoryPointer
@@ -119,7 +119,7 @@ executeOperation x | x == forward = do
       memP <- gets vmMemoryPointer
       tell ["Forward the vmMemoryPointer to " ++ show (memP + 1)]
 
-executeOperation x | x == backword = do
+executeOperation x | x == backwordOp = do
   logging
   machine <- get
   memP    <- gets vmMemoryPointer
@@ -131,7 +131,7 @@ executeOperation x | x == backword = do
       memP <- gets vmMemoryPointer
       tell ["Backward the vmMemoryPointer to " ++ show (memP - 1)]
 
-executeOperation x | x == incr = do
+executeOperation x | x == incrOp = do
   logging
   cell    <- getCurrentCell
   setCurrentCell $ cell + 1
@@ -143,7 +143,7 @@ executeOperation x | x == incr = do
       memP <- gets vmMemoryPointer
       tell ["Increment (vmMemory !! " ++ show memP ++ ") to " ++ show (cell + 1)]
 
-executeOperation x | x == decr = do
+executeOperation x | x == decrOp = do
   logging
   cell    <- getCurrentCell
   setCurrentCell $ cell - 1
@@ -155,12 +155,12 @@ executeOperation x | x == decr = do
       memP <- gets vmMemoryPointer
       tell ["Decrement (vmMemory !! " ++ show memP ++ ") to " ++ show (cell - 1)]
 
-executeOperation x | x == output = do
+executeOperation x | x == outputOp = do
   cell <- getCurrentCell
   liftIO $ putChar $ chr cell
   programGoesToNext
 
-executeOperation x | x == input = do
+executeOperation x | x == inputOp = do
   val <- liftIO . fmap ord $ getChar
   logging val
   setCurrentCell val
@@ -171,7 +171,7 @@ executeOperation x | x == input = do
       memP <- gets vmMemoryPointer
       tell ["Get " ++ show val ++ " from stdin, " ++ "and set it to (vmMemory !! " ++ show memP ++ ")"]
 
-executeOperation x | x == loopBegin = do
+executeOperation x | x == loopBeginOp = do
   logging
   machine@(BFVirtualMachine _ _ opP lbPStack) <- get
   put machine { loopBeginPointerStack = opP:lbPStack }
@@ -181,7 +181,7 @@ executeOperation x | x == loopBegin = do
       opP <- gets bfProgramPointer
       tell ["Push " ++ show opP ++ " to the pointer stack"]
 
-executeOperation x | x == loopEnd = do
+executeOperation x | x == loopEndOp = do
   machine  <- get
   lbPStack <- gets loopBeginPointerStack
   case lbPStack of

@@ -37,14 +37,14 @@ parse txt =
 
     -- Determine monomorphic type of BrainfuckProgram and its tokens
     tokenTexts :: [Text]
-    tokenTexts = map toToken ([ forward
-                              , backword
-                              , incr
-                              , decr
-                              , output
-                              , input
-                              , loopBegin
-                              , loopEnd
+    tokenTexts = map toToken ([ forwardOp
+                              , backwordOp
+                              , incrOp
+                              , decrOp
+                              , outputOp
+                              , inputOp
+                              , loopBeginOp
+                              , loopEndOp
                               ] :: [a])
 
     -- Parse a code to brainf*ck operations
