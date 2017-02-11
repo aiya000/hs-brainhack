@@ -201,3 +201,6 @@ executeOperation x | x == loopEnd = do
     loggingForLoopJump lbP = tell ["Pop " ++ show lbP ++ " from the pointer stack, and set it as the next program pointer"]
     loggingForLoopFinish :: Int -> BrainState ()
     loggingForLoopFinish lbP = tell ["Pop " ++ show lbP ++ " from the pointer stack, and leave from the one of loop"]
+
+-- For suppressing warnings
+executeOperation _ = error "Illegal pattern was detected"

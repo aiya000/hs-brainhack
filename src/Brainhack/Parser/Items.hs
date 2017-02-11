@@ -4,9 +4,7 @@
 module Brainhack.Parser.Items where
 
 import Control.Exception.Safe (Exception, Typeable)
-import Data.Map.Lazy (Map)
 import Data.Text (Text)
-import qualified Data.Map.Lazy as M
 
 -- | The expression of the brainf*ck's ><+-.,[]
 class BrainfuckOperation a where

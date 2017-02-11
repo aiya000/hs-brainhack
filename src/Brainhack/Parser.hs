@@ -16,7 +16,6 @@ import Data.Text (Text)
 import qualified Control.Applicative as P (many)
 import qualified Data.Attoparsec.Combinator as P (lookAhead)
 import qualified Data.Attoparsec.Text as P
-import qualified Data.Map.Lazy as M
 import qualified Data.Text as T
 
 
