@@ -13,6 +13,7 @@ import Control.Monad (void, mapM)
 import Data.Attoparsec.Text (Parser)
 import Data.List (foldl1')
 import Data.Text (Text)
+import qualified Brainhack.Parser.Items as B
 import qualified Control.Applicative as P (many)
 import qualified Data.Attoparsec.Combinator as P (lookAhead)
 import qualified Data.Attoparsec.Text as P
@@ -21,11 +22,11 @@ import qualified Data.Text as T
 
 -- |
 -- Parse source code.
--- If parsing is succeed, return result.
--- Otherwise, throw the exception.
-parse :: forall m a. (MonadCatch m, BrainfuckOperation a) => Text -> m (BrainfuckProgram a)
+-- Return result if parsing is succeed.
+-- Or throw BrainfuckParserException.
+parse :: forall m a. (MonadCatch m, BrainfuckToken a) => a -> m BrainfuckProgram
 parse txt =
-  case P.parseOnly codeParser txt of
+  case P.parseOnly codeParser $ B.toText txt of
     Left  e        -> throw $ BrainfuckParserException e
     Right Nothing  -> throw $ BrainfuckParserException tokenParseErrorMsg
     Right (Just a) -> return a
@@ -35,21 +36,26 @@ parse txt =
                          "An other than token is detected in the code parser\n" ++
                          "`tokenParser` should return the tokens only"
 
-    -- Determine monomorphic type of BrainfuckProgram and its tokens
+    -- Determine monomorphic type
+    tokens :: [a]
+    tokens = [ forwardToken
+             , backwordToken
+             , incrToken
+             , decrToken
+             , outputToken
+             , inputToken
+             , loopBeginToken
+             , loopEndToken
+             ]
+    fromText' :: Text -> a
+    fromText' = fromText
+
     tokenTexts :: [Text]
-    tokenTexts = map toToken ([ forwardOp
-                              , backwordOp
-                              , incrOp
-                              , decrOp
-                              , outputOp
-                              , inputOp
-                              , loopBeginOp
-                              , loopEndOp
-                              ] :: [a])
+    tokenTexts = map toText tokens
 
     -- Parse a code to brainf*ck operations
-    codeParser :: Parser (Maybe [a])
-    codeParser = mapM fromToken <$> tokensParser
+    codeParser :: Parser (Maybe [BrainfuckOperator])
+    codeParser = mapM (toOperator . fromText') <$> tokensParser
 
     -- Parse a code to tokens
     tokensParser :: Parser [Text]

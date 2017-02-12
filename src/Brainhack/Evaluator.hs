@@ -70,7 +70,7 @@ runBrainState s a = flip runStateT a . runWriterT . _runBrainState $ s
 
 
 -- | Evaluate and execute `BrainfuckProgram a` with the virtual machine state
-eval :: (Eq a, BrainfuckOperation a) => BrainfuckProgram a -> BrainState VMMemory
+eval :: BrainfuckProgram -> BrainState VMMemory
 eval operationList = do
   opP <- gets bfProgramPointer
   if operationAreFinished operationList opP
@@ -80,7 +80,7 @@ eval operationList = do
       executeOperation op
       eval operationList
   where
-    operationAreFinished :: BrainfuckProgram a -> BFProgramPointer -> Bool
+    operationAreFinished :: BrainfuckProgram -> BFProgramPointer -> Bool
     operationAreFinished xs ptr = length xs == ptr
 
 
@@ -106,8 +106,8 @@ setCurrentCell val = do
 
 
 -- Execute a specified operation
-executeOperation :: (Eq a, BrainfuckOperation a) => a -> BrainState ()
-executeOperation x | x == forwardOp = do
+executeOperation :: BrainfuckOperator -> BrainState ()
+executeOperation ForwardOp = do
   logging
   machine <- get
   memP    <- gets vmMemoryPointer
@@ -119,7 +119,7 @@ executeOperation x | x == forwardOp = do
       memP <- gets vmMemoryPointer
       tell ["Forward the vmMemoryPointer to " ++ show (memP + 1)]
 
-executeOperation x | x == backwordOp = do
+executeOperation BackwordOp = do
   logging
   machine <- get
   memP    <- gets vmMemoryPointer
@@ -131,7 +131,7 @@ executeOperation x | x == backwordOp = do
       memP <- gets vmMemoryPointer
       tell ["Backward the vmMemoryPointer to " ++ show (memP - 1)]
 
-executeOperation x | x == incrOp = do
+executeOperation IncrOp = do
   logging
   cell    <- getCurrentCell
   setCurrentCell $ cell + 1
@@ -143,7 +143,7 @@ executeOperation x | x == incrOp = do
       memP <- gets vmMemoryPointer
       tell ["Increment (vmMemory !! " ++ show memP ++ ") to " ++ show (cell + 1)]
 
-executeOperation x | x == decrOp = do
+executeOperation DecrOp = do
   logging
   cell    <- getCurrentCell
   setCurrentCell $ cell - 1
@@ -155,12 +155,12 @@ executeOperation x | x == decrOp = do
       memP <- gets vmMemoryPointer
       tell ["Decrement (vmMemory !! " ++ show memP ++ ") to " ++ show (cell - 1)]
 
-executeOperation x | x == outputOp = do
+executeOperation OutputOp = do
   cell <- getCurrentCell
   liftIO $ putChar $ chr cell
   programGoesToNext
 
-executeOperation x | x == inputOp = do
+executeOperation InputOp = do
   val <- liftIO . fmap ord $ getChar
   logging val
   setCurrentCell val
@@ -171,7 +171,7 @@ executeOperation x | x == inputOp = do
       memP <- gets vmMemoryPointer
       tell ["Get " ++ show val ++ " from stdin, " ++ "and set it to (vmMemory !! " ++ show memP ++ ")"]
 
-executeOperation x | x == loopBeginOp = do
+executeOperation LoopBeginOp = do
   logging
   machine@(BFVirtualMachine _ _ opP lbPStack) <- get
   put machine { loopBeginPointerStack = opP:lbPStack }
@@ -181,7 +181,7 @@ executeOperation x | x == loopBeginOp = do
       opP <- gets bfProgramPointer
       tell ["Push " ++ show opP ++ " to the pointer stack"]
 
-executeOperation x | x == loopEndOp = do
+executeOperation LoopEndOp = do
   machine  <- get
   lbPStack <- gets loopBeginPointerStack
   case lbPStack of
@@ -201,6 +201,3 @@ executeOperation x | x == loopEndOp = do
     loggingForLoopJump lbP = tell ["Pop " ++ show lbP ++ " from the pointer stack, and set it as the next program pointer"]
     loggingForLoopFinish :: Int -> BrainState ()
     loggingForLoopFinish lbP = tell ["Pop " ++ show lbP ++ " from the pointer stack, and leave from the one of loop"]
-
--- For suppressing warnings
-executeOperation _ = error "Illegal pattern was detected"
