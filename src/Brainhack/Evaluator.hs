@@ -119,7 +119,7 @@ executeOperation ForwardOp = do
       memP <- gets vmMemoryPointer
       tell ["Forward the vmMemoryPointer to " ++ show (memP + 1)]
 
-executeOperation BackwordOp = do
+executeOperation BackwardOp = do
   logging
   machine <- get
   memP    <- gets vmMemoryPointer

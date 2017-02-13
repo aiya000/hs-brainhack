@@ -10,7 +10,7 @@ import Control.Exception.Safe (Exception, Typeable)
 import Data.Text (Text)
 
 data BrainfuckOperator = ForwardOp
-                       | BackwordOp
+                       | BackwardOp
                        | IncrOp
                        | DecrOp
                        | OutputOp
@@ -21,7 +21,7 @@ data BrainfuckOperator = ForwardOp
 
 instance Show BrainfuckOperator where
   show ForwardOp   = ">"
-  show BackwordOp  = "<"
+  show BackwardOp  = "<"
   show IncrOp      = "+"
   show DecrOp      = "-"
   show OutputOp    = "."
