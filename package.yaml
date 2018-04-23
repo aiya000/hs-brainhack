@@ -1,0 +1,28 @@
+name: brainhack
+version: '0.1.0.0'
+synopsis: ! 'The library for making brainf*ck dialect :+1:'
+description: Please see README.md
+category: Simple
+author: aiya000
+maintainer: aiya000.develop@gmail.com
+copyright: aiya000
+license: MIT
+homepage: https://github.com/aiya000/brainhack
+extra-source-files:
+- README.md
+dependencies:
+- base >=4.7 && <5
+- attoparsec
+- cmdargs
+- containers
+- mtl
+- safe-exceptions
+- text
+- transformers
+library:
+  source-dirs: src
+  ghc-options: -Wall
+  exposed-modules:
+  - Brainhack.Evaluator
+  - Brainhack.Parser
+  - Brainhack.Parser.Items
